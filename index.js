@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 });
 
 
-const veryifyJWT = (req, res, next) =>{
+const verifyJWT = (req, res, next) =>{
      console.log('hitting verify JWT');
      console.log(req.headers.authorization)
      const authorization = req.headers.authorization;
@@ -98,8 +98,13 @@ async function run() {
       
 
       //bookings 
-      app.get('/bookings',  veryifyJWT, async(req, res) =>{
-        console.log(req.headers.authorization);
+      app.get('/bookings',  verifyJWT, async(req, res) =>{
+        const decoded = req.decoded;
+        
+        if(decoded.email !== req.query.email){
+          return res.status(403).send({error: 1, message: 'Forbidden Access'})
+        }
+        console.log('came back after Verify', decoded);
         let query ={}
         if(req.query?.email){
             query={email: req.query.email}
